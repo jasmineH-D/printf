@@ -1,82 +1,75 @@
-#include <stdio.h>
-#include <stdarg.h>
-#include <unistd.h>
 #include "holberton.h"
 
-/**
- * find_correct_func - finding the format for _printf
- * @format: format
- * Return: NULL
- */
-
-int (*find_correct_func(const char *format))(va_list)
-{
-unsigned int i = 0;
-code_f find_f[] = {
-{"c", print_char},
-{"s", print_string},
-{"i", print_int},
-{"d", print_dec},
-{"r", print_rev},
-{"b", print_bin},
-{"u", print_unsigned},
-{"o", print_octal},
-{"x", print_hex},
-{"X", print_HEX},
-{"R", print_rot13},
-{"S", print_S},
-{"p", print_p},
-{NULL, NULL}
-};
-
-while (find_f[i].sc)
-{
-if (find_f[i].sc[0] == (*format))
-return (find_f[i].f);
-i++;
-}
-return (NULL);
-}
 
 /**
- * _printf - produces an output based on format
- * @format: format
- * Return: size
+ * _printf - Parameters for printf
+ * @format: list of arguments
+ * Return: Printed thing
  */
+
 int _printf(const char *format, ...)
 {
-va_list list;
-int (*f)(va_list);
-unsigned int i = 0, len = 0;
-if (format == NULL)
-return (-1);
-va_start(list, format);
-while (format[i])
-{
-while (format[i] != '%' && format[i])
-{
-_putchar(format[i]);
-len++;
-i++;
+	int chars;
+	va_list list;
+
+	va_start(list, format);
+	if (format == NULL)
+		return (-1);
+
+	chars = charsFormats(format, list);
+
+	va_end(list);
+	return (chars);
 }
-if (format[i] == '\0')
-return (len);
-f = find_correct_func(&format[i + 1]);
-if (f != NULL)
+
+/**
+ * charsFormats - paremters printf
+ * @format: list of arguments
+ * @args: listing
+ * Return: value of print
+ */
+
+int charsFormats(const char *format, va_list args)
 {
-len += f(list);
-i += 2;
-continue;
+	int a, b, chars, r_val;
+
+	fmtsSpefier f_list[] = {{"c", _char}, {"s", _string},
+				{"%", _percent}, {"d", _integer}, {"i", _integer}, {NULL, NULL}
+	};
+	chars = 0;
+	for (a = 0; format[a] != '\0'; a++)
+	{
+		if (format[a] == '%')
+		{
+			for (b = 0; f_list[b].sym != NULL; b++)
+			{
+				if (format[a + 1] == f_list[b].sym[0])
+				{
+					r_val = f_list[b].f(args);
+					if (r_val == -1)
+						return (-1);
+					chars += r_val;
+					break;
+				}
+			}
+			if (f_list[b].sym == NULL && format[a + 1] != ' ')
+			{
+				if (format[a + 1] != '\0')
+				{
+					_putchar(format[a]);
+					_putchar(format[a + 1]);
+					chars = chars + 2;
 }
-if (!format[i + 1])
-return (-1);
-_putchar(format[i]);
-len++;
-if (format[i + 1] == '%')
-i += 2;
-else
-i++;
-}
-va_end(list);
-return (len);
+				else
+					return (-1);
+			}
+		a += 1;
+		}
+		else
+		{
+			_putchar(format[a]);
+			chars++;
+		}
+	}
+	return (chars);
 }
