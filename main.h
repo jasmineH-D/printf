@@ -1,20 +1,16 @@
 #ifndef MAIN_H
 #define MAIN_H
-
 #include <stdarg.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 
+void _putchar(char c, int *sum);
 int _printf(const char *format, ...);
-int _print_binary(unsigned int num);
-int _print_number(int num);
-int _putchar(char c);
-int _putstr(char *str);
-int	_put_x(unsigned int nb);
-int	_put_X(unsigned int nb, int check);
-int get_len(unsigned int nb);
-int	_put_o(unsigned int nb);
-int _put_u(unsigned int num);
-int put_S(char *str);
+void handle_spec(char c, int *sum, va_list args);
+int _strlen(char *s);
+void print_str(char *str, int *sum);
+int _num_count(int num);
+void print_int(int num, int *sum);
 
 #endif
