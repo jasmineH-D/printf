@@ -1,75 +1,91 @@
 #include "main.h"
 
+/**
+ * _putchar - writes a character to stdout
+ * @c: the character to write
+ *
+ * Return: 1.
+ */
+
+int _putchar(char c)
+{
+	write(1, &c, 1);
+	return (1);
+}
 
 /**
- * _printf - Parameters for printf
- * @format: list of arguments
- * Return: Printed thing
+ * skip_space - skip spaces after '%'.
+ * @format: the format.
+ * @index: index in format.
+ * Return: new index after skipping spaces.
+*/
+
+int	skip_space(const char *format, int index)
+{
+	while (format[index] == ' ')
+		index++;
+	return (index);
+}
+
+/**
+ * check_format - checks for valid formats.
+ * @c: format character.
+ * Return: 1 if it's valid, otherwise 0.
+*/
+int check_format(char c)
+{
+	if (c == 'c' || c == 's' || c == '%'
+		|| c == 'd' || c == 'b' || c == 'i')
+		return (1);
+	return (0);
+}
+
+/**
+ * _printf - prints formatted output to stdout
+ * @format: the format string to use
+ *
+ * Return: the number of characters printed
  */
 
 int _printf(const char *format, ...)
 {
-	int chars;
 	va_list list;
+	int i = 0;
+	int count = 0;
 
 	va_start(list, format);
-	if (format == NULL)
+	if (!format)
 		return (-1);
-
-	chars = charsFormats(format, list);
-
-	va_end(list);
-	return (chars);
-}
-
-/**
- * charsFormats - paremters printf
- * @format: list of arguments
- * @args: listing
- * Return: value of print
- */
-
-int charsFormats(const char *format, va_list args)
-{
-	int a, b, chars, r_val;
-
-	fmtsSpefier f_list[] = {{"c", _char}, {"s", _string},
-				{"%", _percent}, {"d", _integer}, {"i", _integer}, {NULL, NULL}
-	};
-	chars = 0;
-	for (a = 0; format[a] != '\0'; a++)
+	while (format && format[i])
 	{
-		if (format[a] == '%')
+		if (format[i] == '%')
 		{
-			for (b = 0; f_list[b].sym != NULL; b++)
+			i = skip_space(format, i + 1);
+			if (!format[i])
+				return (-1);
+			if (check_format(format[i]))
 			{
-				if (format[a + 1] == f_list[b].sym[0])
-				{
-					r_val = f_list[b].f(args);
-					if (r_val == -1)
-						return (-1);
-					chars += r_val;
-					break;
-				}
+				if (format[i] == 'c')
+					count += _putchar((char)va_arg(list, int));
+				if (format[i] == 's')
+					count += _putstr(va_arg(list, char *));
+				if (format[i] == '%')
+					count += _putchar(format[i]);
+				if (format[i] == 'd' || format[i] == 'i')
+					count += _print_number(va_arg(list, int));
+				if (format[i] == 'b')
+					count += _print_binary(va_arg(list, unsigned int));
 			}
-			if (f_list[b].sym == NULL && format[a + 1] != ' ')
+			else
 			{
-				if (format[a + 1] != '\0')
-				{
-					_putchar(format[a]);
-					_putchar(format[a + 1]);
-					chars = chars + 2;
-}
-				else
-					return (-1);
+				count += _putchar('%');
+				count += _putchar(format[i]);
 			}
-		a += 1;
 		}
 		else
-		{
-			_putchar(format[a]);
-			chars++;
-		}
+			count += _putchar(format[i]);
+		i++;
 	}
-	return (chars);
+	va_end(list);
+	return (count);
 }
